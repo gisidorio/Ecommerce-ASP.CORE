@@ -1,4 +1,5 @@
 ﻿using CasaDoCodigo.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CasaDoCodigo.Controllers
@@ -6,10 +7,14 @@ namespace CasaDoCodigo.Controllers
     public class Pedido : Controller
     {
         private readonly IProdutoRepository produtoRepository;
+        private readonly IPedidoRepository pedidoRepository;
 
-        public Pedido(IProdutoRepository produtoRepository)
+
+        public Pedido(IProdutoRepository produtoRepository, 
+            IPedidoRepository pedidoRepository)
         {
             this.produtoRepository = produtoRepository;
+            this.pedidoRepository = pedidoRepository;
         }
 
         public IActionResult Index()
@@ -27,14 +32,22 @@ namespace CasaDoCodigo.Controllers
             return View();
         }
 
-        public IActionResult Carrinho()
+        public IActionResult Carrinho(string codigo)
         {
-            return View();
+            if (!string.IsNullOrEmpty(codigo))
+            {
+                pedidoRepository.AddItem(codigo);
+            }
+
+            var pedido = pedidoRepository.GetPedido();
+            return View(pedido.Itens);
         }
 
         public IActionResult Resumo()
         {
-            return View();
+            var pedido = pedidoRepository.GetPedido();
+
+            return View(pedido);
         }
     }
 }

@@ -26,6 +26,9 @@ namespace CasaDoCodigo
             // SERVE PARA ADICIONAR SERVIÇOS À SUA APLICAÇÃO. PODE SER DE BANCO DE DADOS LOG MONITORAMENTO, MVC E ETC
             services.AddMvc();
 
+            services.AddDistributedMemoryCache();
+            services.AddSession();
+
             /* CONNECTION STRING RECEBE A STRING DE CONEXÃO QUE ESTÁ NO 
              * ARQUIVO DE CONFIGURAÇÃO appsettings.json */
             string connectionString = Configuration.GetConnectionString("Default");
@@ -36,6 +39,9 @@ namespace CasaDoCodigo
 
             services.AddTransient<IDataService, DataService>();
             services.AddTransient<IProdutoRepository, ProdutoRepository>();
+            services.AddTransient<IPedidoRepository, PedidoRepository>();
+            services.AddTransient<ICadastroRepository, CadastroRepository>();
+            services.AddTransient<IItemPedidoRepository, ItemPedidoRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,11 +61,13 @@ namespace CasaDoCodigo
 
             app.UseStaticFiles();
 
+            app.UseSession();
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Pedido}/{action=Carrossel}/{id?}");
+                    template: "{controller=Pedido}/{action=Carrossel}/{codigo?}");
             });
 
             // CHAMADA DE MÉTODO PARA GARANTIR QUE A BASE DE DADOS FOI CRIADA
