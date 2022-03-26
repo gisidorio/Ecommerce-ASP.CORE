@@ -2,9 +2,11 @@
     ViewData["Title"] = "Carrinho";
 }
 
-@model IList<ItemPedido>;
+@model CarrinhoViewModel
 
 <h3>Meu Carrinho</h3>
+
+<form method="post" asp-action="carrinho"></form>
 
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -27,7 +29,7 @@
         </div>
     </div>
     <div class="panel-body">
-        @foreach (var item in Model)
+        @foreach (var item in Model.Itens)
         {
             <div class="row row-center linha-produto" item-id="@(item.Id)">
                 <div class="col-md-3">
@@ -38,14 +40,18 @@
                 <div class="col-md-2 text-center">
                     <div class="input-group">
                         <span class="input-group-btn">
-                            <button class="btn btn-default">
+                            <!-- carrinho representa a instância da classe Javascript "Carrinho"" -->
+                            <button class="btn btn-default" onclick="carrinho.ClickDecremento(this)">
                                 <span class="glyphicon-minus"></span>
                             </button>
                         </span>
+                        <!-- o atributo onblur representa quando o elemento perder o foco, ou seja
+                             o método UpdateQuantidade é chamado quando o "tiramos o foco do input" 
+                             onblur é bastante utilizado quando o usuário termina de editar um campo -->
                         <input type="text" value="@item.Quantidade"
-                           class="form-control text-center" />
+                           class="form-control text-center" onblur="carrinho.UpdateQuantidade(this)"/>
                         <span class="input-group-btn">
-                            <button class="btn btn-default" onclick="ClickIncremento(this)">
+                            <button class="btn btn-default" onclick="carrinho.ClickIncremento(this)">
                                 <span class="glyphicon-plus"></span>
                             </button>
                         </span>
@@ -64,13 +70,13 @@
         <div class="row">
             <div class="col-md-10">
                 <span numero-itens>
-                    Total: @(Model.Count())
+                    Total: @(Model.Itens.Count())
                     itens
                 </span>
             </div>
             <div class="col-md-2">
                 Total: R$ <span class="pull-right" total>
-                    @(Model.Sum(i => i.Quantidade * i.PrecoUnitario))
+                    @(Model.Total)
                 </span>
             </div>
         </div>
@@ -86,8 +92,8 @@
             @*<a class="btn btn-success" asp-action="cadastro">
                 Preencher Cadastro
             </a>*@
-            <a class="btn btn-success" asp-action="resumo">
-                Adicionar Produtos
+            <a class="btn btn-success" asp-action="cadastro">
+                Preencher cadastro
             </a>
         </div>
     </div>
@@ -95,34 +101,5 @@
 
 @section Scripts
 {
-    <script type="text/javascript">
-        function ClickIncremento(btn) {
-            let linha_item = $(btn).parents('[item-id]'); // pega os pais do elemento
-            let item_id = (linha_item).attr('item-id');
-            let quantidade = $(linha_item).find('input').val();
-
-            //Asynchronous JAvavascript Xml
-            // Assíncrono signífica que o seu código não vai aguardar a resposta do servidor pra continuar rodando
-            /* PARA FAZERMOS UMA REQUISIÇÃO AJAX COM JQUERY PRECISAREMOS DE 4 PARÂMETROS
-               1° url: o endereço do nosso método no controller (pedido/updatequantidade)
-               2° tipo: o tipo de requisição HTTP que escolhemos (POST nesse caso)
-               3° contentType: o formato dos dados (nesse caso é JSON)
-               4° data: o objeto que vai levar os dados do cliente para o servidor
-            */
-
-            let data = {
-                Id: item_id,
-                Quantidade: quantidade
-            };
-            
-            $.ajax({
-                url: '/Pedido/UpdateQuantidade',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(data) // JSON.STRINGFY TRANSFORMA OS DADOS EM STRING
-            });
-
-            debugger;
-        }
-    </script>
+    <script type="text/javascript" src="~/js/carrinho.js"></script>
 }
